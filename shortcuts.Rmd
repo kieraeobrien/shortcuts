@@ -1,0 +1,98 @@
+---
+title: "shortcuts"
+author: "Kiera O'Brien"
+date: "6/24/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# some necessary packages
+
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+
+# some other useful packages
+
+library(readr)
+library(purrr)
+library(stringr)
+library(gt) # very useful package for making tables
+library(skimr)
+library(haven)
+library(knitr)
+library(scales)
+library(janitor)
+library(magrittr) # helps  if we want to pipe & assign at the same time
+library(patchwork)
+
+# some favorites/fun ones
+library(fivethirtyeight)
+library(rvest) # package that helps you scrape web tables
+library(tidycensus) # Use the `get_acs` command in tidycensus to get data
+
+
+```
+
+
+```{r tidycensus, include = F}
+# I tell get_acs all the necessary information, 
+# and I give median income a more legible name.
+
+income <- get_acs(geography = "county", 
+                  variables = c(medincome = "B19013_001"), 
+                  year = 2018)
+
+# creating function to  select county & state from the ACS
+
+ get_state <- function(countystate){
+  countystate %>% 
+  str_split_fixed(.,", ", 2) %>% 
+  pluck(2) %>% 
+  return()
+ }
+
+ml_2 <- get_state("Treasure County, Montana")
+
+# printing to html below
+
+# mapping example 
+# Geom_sf gives the map geom
+
+income_ca %>% 
+  ggplot(aes(fill = medincomeE )) +
+    geom_sf() +
+    scale_fill_viridis_c(option = "plasma",
+                         direction = -1,
+                         labels = comma) +
+    labs(title = "Median Income by County in California",
+         caption = "Source: American Communities Survey 2018",
+         fill = "Median Income") +
+    theme_void()
+```
+
+Treasure County, Montana is located in the state of `r ml_2`. 
+
+```{r function creation, include = F}
+
+# This function should take a numeric vector (like our column, estimate)  
+# and calculate the standard deviation of the variable, then adds 1.
+
+sd_plus_one <- function(var, na.rm = TRUE){
+  x<- sd(var, na.rm = na.rm + 1)
+  return(x)
+  }
+
+sd_plus_one(var = income$estimate)
+
+# to transform out of scientific notification 
+
+ml_1 <- format(sd_plus_one(var = income$estimate), scipen = 10)
+```
+
+```{r ggplotting, echo = F}
+
+```
+
